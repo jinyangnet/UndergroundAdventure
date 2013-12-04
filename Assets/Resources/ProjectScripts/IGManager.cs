@@ -170,7 +170,7 @@ public partial class IGManager  : MonoBehaviour
 
 	public  void InitSence()
 	{
-		IGState.MapsIndex = 15 ;
+		IGState.MapsIndex = 7 ;
 		for(int j = 0 ; j < IGState.MapsIndex ; j++ )
 		{
 			for(int i = 4;i <12 ; i++ )

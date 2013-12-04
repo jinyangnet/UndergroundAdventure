@@ -8,8 +8,9 @@ public class BoxTest : MonoBehaviour {
 	//public Transform _stopper ;
 	public bool _isDebug =false ;
 
-
 	int _tickCount = 0 ;
+	int _updateCount = 0 ;
+
 	int _tickConnect = 0 ;
 	int _tickCountMax = 60 ;
 
@@ -26,12 +27,10 @@ public class BoxTest : MonoBehaviour {
 	public bool _isDead = false ;
 	int _frameIndex = 1 ;
 	Transform player ;
-
+	GameObject _player ;
 	Dictionary<Transform,int> _list ;
 	RaycastHit _ray ;
-
-	Vector3 _down ; // = transform.TransformDirection( Vector3.down ) ;
-
+	Vector3 _down ; // = transform.TransformDirection( Vector3.down ) 
 	void Start () {
 
 		_down = transform.TransformDirection( Vector3.down ) ;
@@ -40,6 +39,7 @@ public class BoxTest : MonoBehaviour {
 		//if ( !tag.Contains("jewel"))
 		StartCoroutine( CheckBoxStatus() ) ;
 		//player = GameObject.Find("player").transform ;//.FindGameObjectWithTag ( "player" ).transform ;
+		_player = GameObject.Find("Player") ;
 	}
 	
 	IEnumerator CheckBoxStatus(){
@@ -56,38 +56,18 @@ public class BoxTest : MonoBehaviour {
 			}
 
 			yield return  new  WaitForSeconds(1.0f);
-
-		    GameObject _player = GameObject.Find("Player") ;
 			float _distince = Vector3.Distance ( _player.transform.position , transform.position ) ;
 
-			if (_player.transform.position.y < transform.position.y &&  _distince > 2.0f  || _isDead){
-				// Destroy ( gameObject ) ;
+			if (_player.transform.position.y < transform.position.y &&  _distince > 1.50f  || _isDead){
+				Destroy ( gameObject ) ;
 			}
 
-			// 检查是否有包块问题/////////////////////////////////////////////////////////
+			continue ;
 
+			// 检查是否有包块问题/////////////////////////////////////////////////////////
 			if ( transform.position.y < _player.transform.position.y  || transform.childCount <= 4 ){
 				continue ;
 			}
-
-			/*
-			if ( ( transform.parent == null &&  transform.childCount >= 5 ) )
-			{
-				if ( _stopper )
-				{
-					// if (_stopper.parent !=null ) _stopper = _stopper.parent ;
-					BoxTest box = _stopper.GetComponent("BoxTest") as BoxTest ;
-
-					if ( (box._stopper && box._stopper.parent && box._stopper.parent == transform) ||
-					    (box._stopper && box._stopper.parent==null && box._stopper == transform) )
-					{
-						_isDead = true ;
-						IGManager.gm.PlayDestroyBoxEffect ( transform ,0.0f) ;
-						print ( "****************************************" ) ;
-					}
-				}
-			}
-*/
 
 			if ( _list == null  ) _list  = new Dictionary<Transform, int>();  
 			_list.Clear() ;
@@ -145,7 +125,6 @@ public class BoxTest : MonoBehaviour {
 	}
 	
 	public void ResetPosition(){
-		try {
 		 if (_indexY > 99 ) {print( "_indexY =" + _indexY) ;return ;}
 		 if ( transform == null ) return ;
 
@@ -160,11 +139,7 @@ public class BoxTest : MonoBehaviour {
 				return ;//break ;
 			}
 		}
-		}
-		catch( UnityException ex )
-		{
-			print( string.Format( " _indexX = {0} _indexY = {1} ,position ={2},Maps={3}",_indexX , _indexY,transform.position , ex.Message ) );
-		}
+		
 	}
 	
 	void ResetPositionTransform( Transform _transform){
@@ -202,8 +177,8 @@ public class BoxTest : MonoBehaviour {
 				}
 			}
 		}
-		_tickConnect ++ ;
-		//if ( _tickConnect == 8 )
+		//_tickConnect ++ ;
+		if ( _tickConnect++ == 2 )
 		{ 
 			//print ( " _tickConnect = " + _tickConnect) ;
 			_tickConnect =0 ;
@@ -281,8 +256,9 @@ public class BoxTest : MonoBehaviour {
 				}
 		}
 
-		_tickConnect ++ ;
-		if (  _tickConnect  ==  2 )	{
+		//_tickConnect ++ ;
+		if (  _tickConnect++  ==  2 )	
+		{
 			_tickConnect = 0 ;
 			ConnectionTransformParent() ;
 			foreach (Transform childTransform in transform ){
@@ -319,18 +295,20 @@ public class BoxTest : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update (){
-
 		if (_isResetPosition)
 			ResetPosition ();
 		//print ( " _tickConnect = " + _tickConnect) ;
 		if( _isDead ) return ;
 
-		if ( ( transform.parent == null &&  transform.childCount == 0 )  || _isJewel ){
-			MoveDownSingle();
-		}
-		else if ( transform.parent == null &&  transform.childCount > 0 ){
-			MoveDownMultiple();
-		}
+		//if (_updateCount++ == 1) 
+		{
+			//_updateCount = 0 ;
+						if ((transform.parent == null && transform.childCount == 0) || _isJewel) {
+								MoveDownSingle ();
+						} else if (transform.parent == null && transform.childCount > 0) {
+								MoveDownMultiple ();
+						}
+				}
 	}
 
 	void SigleObjects(){
@@ -471,79 +449,4 @@ public class BoxTest : MonoBehaviour {
 		set { _isJewel = value; }
 	}
 }
-	/*
-	void MoveDownSingleFlashing()
-	{
-		// dange de
-		RaycastHit rayHit;	
-		Vector3 fwd = transform.TransformDirection( Vector3.down ) ;
-		_isStop = false ;
-		if (  Physics.Raycast(transform.position, fwd, out rayHit, 0.10f ))
-        {
-			ResetPosition() ;
-			_tickCount = 0 ;
-			//collider.enabled = true ;
-			gameObject.layer = GameState.LayerNormal ; // _layerNormal ;
-			_isStop = true ;
-        }
-		else
-		{
-			gameObject.layer =  GameState.LayerFlash ;  //_layerFlash;
-			//collider.enabled = false ;
-			if( _tickCount++ < _tickCountMax )
-			{
-				transform.position = new Vector3(transform.position.x + GameState.Flashing ,  transform.position.y,transform.position.z) ;
-				_isFlashing = true ;
-			}
-			else
-			{
-				//collider.enabled = true ;
-				_isMoved = true ;
-				transform.position = new Vector3( _positionX ,  transform.position.y- _moveDistince,transform.position.z);
-				_isFlashing = false ;
-			}
-		}
-		
-		SigleObjects() ;
-		
-	}
-
-		if ( transform.parent != null &&  _isMoved )  //  transform.parent.childCount >= 3 
-		{
-			
-			BoxTest _box = transform.parent.GetComponent("BoxTest") as  BoxTest ;
-			_box._isMoved = true ;
-			print ( "  -- " + name ) ;
-			//print( " Destroy +++++++++++++++++++ " +  transform.childCount );
-			//Destroy(transform.parent.gameObject,0.5f);
-		}
-		else
-		{
-			print  ( transform.name +  " -- transform.parent = " +  transform.parent  +  " _isMoved = " +   _isMoved ) ;
-			//print(  transform.name +  "  ------------------------- " +  transform.childCount );
-		}
-
-
-
-	//
-	bool CheckPlayer(Transform tf   ){
-		bool _isPlayer = false ;
-		if ( tf.name == "Player" ) {
-			RaycastHit _ray;	
-			Vector3 fwd = transform.TransformDirection( Vector3.up ) ;
-			RaycastHit[]  rh = Physics.RaycastAll(transform.position,fwd ) ;//,  _ray,  100.0f  ) ;
-			for( int i = 0 ; i <rh.Length ; i ++ ){
-
-				IGManager.gm.PlayDestroyBoxEffect(rh[i].collider.transform ,0.0f) ; 
-				//GameState.PlayDestroyBoxEffect(rh[i].collider.transform ,0.0f) ; 
-			}
-
-			IGManager.gm.PlayDestroyBoxEffect(transform,0.0f) ;
-			_isPlayer = true ;
-		}
-		return _isPlayer ;
-	}
-
-								
-	*/
 	

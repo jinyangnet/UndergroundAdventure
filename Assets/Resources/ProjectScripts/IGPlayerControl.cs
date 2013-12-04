@@ -672,7 +672,7 @@ public class IGPlayerControl : MonoBehaviour {
 			//else SetPlayerRight();
 			GameObject bottom = GameObject.Find("_Bottom");
 			float _distince = Vector3.Distance ( bottom.transform.position , transform.position ) ;
-			if ( _distince < 1.50f )
+			if ( _distince < 1.200f )
 			{
 				IGManager.gm.SenceAddBox();
 				//print ( " 00 _distince = " + _distince );

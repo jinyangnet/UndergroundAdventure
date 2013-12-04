@@ -262,7 +262,7 @@ public class IGState : MonoBehaviour {
 #if UNITY_EDITOR
 		 filepath = Application.streamingAssetsPath + string.Format( "/{0}.xml",IGState.LevelsIndex) ; //"/my.xml";
 #elif UNITY_IPHONE
-	    filepath = Application.persistentDataPath + string.Format( "/{0}.xml",GameState.LevelsIndex) ;
+		filepath = Application.persistentDataPath + string.Format( "/{0}.xml",IGState.LevelsIndex) ;
 #endif
 		return filepath ;
 	}
